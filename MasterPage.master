@@ -1,0 +1,573 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPage.master.cs" Inherits="MasterPage" %>
+<%@ Register TagPrefix="uc" TagName="MenuControl" Src="~/MenuControl.ascx" %> 
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>中小学电脑派位系统</title>
+    <asp:ContentPlaceHolder id="head" runat="server">
+    </asp:ContentPlaceHolder>
+
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">  
+
+    <style>  
+        main {  
+    margin-left: 250px; /* 根据菜单栏的实际宽度进行调整 */  
+    height: 900px;  
+    max-width: 1800px;  
+    padding: 1rem; /* 如果需要，为主内容区域添加内边距 */  
+}  
+       .search-bar {  
+        position: relative;  
+        width: 90%;  
+        max-width: 450px;  
+       margin-left: 5%; /* 清除自动边缘对齐 */
+       margin-right: 0; /* 微调搜索框的位置 */
+    }  
+
+    .search-input {  
+        width: 100%;  
+        padding-right: 3rem;  
+        padding-left: 2rem;  
+        border: 1px solid #ccc;  
+        border-radius: 4px;  
+        padding-left: 10px;  
+        position: relative; /* 设置为相对定位 */  
+    }
+
+    .search-icon {  
+        position: absolute;  
+        right: 1rem;  
+        top: 50%;  
+        transform: translateY(-50%);  
+        cursor: pointer;  
+    }
+       .data-container {  
+        margin-top: 4rem; /* 与搜索框之间留出一定间距 */
+        border: 1px solid #ccc;  
+        border-radius: 4px;  
+        padding: 1rem;  
+        background-color: #fff;  
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        height: 550px; /* 增加高度 */
+        max-width: 1400px; /* 减小宽度 */
+        margin-left: auto; /* 左对齐 */
+        margin-right: auto; /* 右对齐 */
+        overflow-y: auto; /* 启用垂直滚动 */  
+    }
+       .content-wrapper {  
+        display: flex;  
+        flex-direction: column;  
+        align-items: center; /* 水平居中 */
+    }
+       .w-1/3 input[type=number] {
+       margin-left: 0; /* 将输入框推到右边 */
+       margin-right: 0; /* 移除右边距 */
+   }
+       .btn-custom-width {
+    width: 130px;
+}
+        .hidden-file-input {
+            display: none;
+        }
+
+        /* 自定义文件选择按钮样式 */
+        .custom-file-upload {
+            display: inline-block;
+            padding: 6px 12px;
+            cursor: pointer;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: #555;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* 按钮容器样式 */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 100px; /* 按钮之间的间距 */
+            margin-top: -0.5rem;
+        }
+
+        /* 文件选择按钮和导入按钮的组合 */
+        .file-import-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .file-import-group label {
+            margin-right: 2px; /* 适当调整间距 */
+        }
+       .modal {  
+        display: none; /* 默认隐藏 */  
+        position: fixed;   
+        z-index: 1000;   
+        left: 0;  
+        top: 0;  
+        width: 100%;  
+        height: 100%;  
+        overflow: auto;   
+        background-color: rgb(0,0,0);   
+        background-color: rgba(0,0,0,0.4);   
+    }  
+        /*模态背景*/ 
+.modal {
+    display: none; /* 默认隐藏 */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* 模态内容容器 */
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;   /* 上下之间的间隔 */
+    padding: 20px;       /*增加内边距 */
+    border: 1px solid #888;
+    border-radius: 8px; /* 圆角 */
+    width: 30%;   
+    max-height: 350px; /* 尝试一个具体的像素值 */
+    overflow-y: auto;  /*当内容超过最大高度时，出现垂直滚动条 */
+    word-wrap: break-word;  /*允许长单词或URL地址换行到下一行*/ 
+    white-space: pre-line;  /*保留空白符序列，但是正常地进行换行 */
+    font-size: 20px;  /*设置全局字体大小 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);  /*阴影效果 */
+}
+
+/* 关闭按钮 */
+.close {
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* 标题 */
+.modal-content h2 {
+    font-size: 24px; /* 标题字体大小 */
+    margin-bottom: 0px; /* 标题下方间距 */
+    color: #333; /* 标题颜色 */
+}
+
+.modal-content ul {  
+    list-style: none;  
+    padding: 0;  
+    margin: 0;  
+}  
+
+.modal-content ul li {  
+    margin-bottom: 5px; /* 可自定义，尝试不同值 */  
+    padding: 0;/* 确保没有额外的内边距 */  
+    display: block; /* 将列表项设为块级元素 */ 
+  
+}  
+
+.modal-content ul li label {  
+    display: flex;  
+    align-items: center;  
+    cursor: pointer;  
+     padding: 2px 3px; /* 调整内边距 */   
+    border: 1px solid #eee; /* 边框 */  
+    border-radius: 4px; /* 圆角 */  
+    transition: background-color 0.3s ease; /* 平滑过渡效果 */  
+}  
+
+.modal-content ul li label:hover {
+    background-color: #f0f0f0; /* 鼠标悬停时的背景颜色 */
+}
+
+.modal-content ul li input[type="radio"] {
+    margin-right: 10px; /* 单选按钮和文本之间的间距 */
+}
+.fixed-width-input {
+    width: 500px; /* 设置一个固定的宽度值 */
+}
+
+.spinner {  
+    border: 16px solid #f3f3f3; /* 浅灰色 */  
+    border-top: 16px solid #3498db; /* 蓝色 */  
+    border-radius: 50%;  
+    width: 60px;  
+    height: 60px;  
+    animation: spin 2s linear infinite;  
+}  
+
+@keyframes spin {  
+    0% { transform: rotate(0deg); }  
+    100% { transform: rotate(360deg); }  
+}  
+
+
+    </style>  
+
+</head>
+<body class=" bg-gray-100">
+    <form id="form1" runat="server">
+        <header class="bg-green-600 text-white p-4 flex items-center justify-center" style="min-height: 100px;">  
+                <h1 class="text-3xl">中小学电脑派位系统</h1>  
+                <div class="flex justify-center gap-12 mx-auto" style="max-width: 350px; margin-right: 100px;"> 
+                    
+                   <%-- <asp:Button ID="btnLogin" runat="server" Text="登录" CssClass="bg-white hover:bg-gray-100 text-green-600 font-bold py-2 px-4 rounded" OnClientClick="openLoginModal(); return false;"/> --%> 
+                    <asp:Button ID="btnRegister" runat="server" Text="首页" CssClass="bg-white hover:bg-gray-100 text-green-600 font-bold py-2 px-4 rounded ml-6" />  
+                   <asp:Button ID="btnViewSchoolInfo" runat="server" Text="查看学校信息"
+            CssClass="bg-white hover:bg-gray-100 text-green-600 font-bold py-2 px-4 rounded ml-6"
+            OnClientClick="viewSchoolInfo(); return false;"/>
+        
+                </div>
+            
+            </header>
+    
+
+
+<div>  
+    <!-- 引入左侧菜单栏 -->  
+    <uc:MenuControl ID="menuControl" runat="server"  class="w-1/3" style="width: 250px; height: 500px;"/>  
+    <asp:Literal ID="Literal1" runat="server"></asp:Literal>
+</div>  
+
+         <main class="flex-1 "  style="margin-left: 250px;""> 
+             
+             <div class="bg-white p-6 rounded-lg shadow-md min-h-full"> 
+                 <div class="flex justify-between mb-4 mt-6">  
+                        <div class="relative search-bar w-1/2">   
+                        <input type="text" placeholder="搜索..." class="border border-gray-300 rounded-lg py-2 px-4 search-input" />  
+                      <button class="search-icon bg-transparent focus:outline-none" >  
+                        <%--<button id="searchButton" class="search-icon bg-transparent focus:outline-none">--%>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">  
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a7 7 0 100 14 7 7 0 000-14zm0 0l6 6" />  
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l6 6" />  
+                            </svg>  
+                        </button>  
+                    </div>
+
+                 <div class="flex items-center" style="margin-left: 15%; margin-right: 5%;">  
+                            <%--<input type="number" id="txt招生数" placeholder="输入招生数" class="border border-gray-300 rounded-lg py-2 px-4 w-auto" style="width: 450px;"/>--%>
+                            <asp:TextBox ID="txt招生数" runat="server" placeholder="输入招生数" CssClass="border border-gray-300 rounded-lg py-2 px-4 w-auto" style="width: 450px;" />  
+                        </div>  
+                    </div>  
+<%--              <div class="data-container overflow-y-auto" style="max-height: 600px;">  
+<asp:Literal ID="dataContent" runat="server"></asp:Literal>--%>
+<%--</div>      --%>    
+                 
+
+
+ <div class="data-container overflow-y-auto" style="max-height: 600px;">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <thead>
+                        <tr>
+                            <th colspan="100%" id="selectedSchoolName" style="text-align:center;"> </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <asp:Literal ID="dataContent" runat="server"></asp:Literal>
+                    </tbody>
+                </table>
+      </div>
+  </div>  
+<div   class="flex justify-start space-x-40 max-w-screen-xl" style="margin-top: -7rem; margin-left: 15rem;">
+    <div class="button-container">
+
+        <asp:FileUpload ID="fileUpload"  runat="server"  />  
+   
+    <asp:Button ID="btnImport" runat="server" Text="导入" CssClass="bg-green-400 hover:bg-green-500 text-white font-bold py-2 px-4 rounded btn-custom-width " style="font-size: 18px;" OnClick="btnImport_Click"   />  
+    <asp:Button ID="btnTest" runat="server" Text="测试派位" CssClass="bg-purple-400 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded btn-custom-width" style="font-size: 18px;" OnClick="btnTest_Click" />
+    <asp:Button ID="btnExport" runat="server" Text="导出" CssClass="bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded btn-custom-width" style="font-size: 18px;" OnClick="btnExport_Click" />  
+    <asp:Button ID="btnStart"  runat="server" Text="开始派位" CssClass="bg-blue-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded btn-custom-width" style="font-size: 18px;" OnClick="btnStart_Click"/>  
+
+</div>  
+<%--    <div id="loginModal" class="fixed inset-0 bg-gray-500 bg-opacity-90 flex items-center justify-center hidden" >  
+    <div class="bg-white rounded-lg p-6 w-1/3">  
+        <h2 class="text-xl mb-4">登录</h2>  
+        <div id="message" class="mb-4 text-red-500"></div>  <!-- 消息展示区域 -->  
+        <div>  
+            <label for="username" class="block mb-2">用户名:</label>  
+            <input type="text" id="username" class="border border-gray-400 p-2 w-full mb-4 fixed-width-input" />  
+            <span id="username-asterisk" class="text-red-500" style="margin-right: 0.5rem;">*</span> <!-- 星号提示 -->
+        </div>  
+        <div>  
+            <label for="password" class="block mb-2">密码:</label>  
+            <input type="password" id="password" class="border border-gray-400 p-2 w-full mb-4 fixed-width-input" />  
+            <span id="password-asterisk" class="text-red-500" style="margin-right: 0.5rem;">*</span> <!-- 星号提示 -->
+        </div>  
+        <div>  
+            <label for="confirmPassword" class="block mb-2">确认密码:</label>  
+            <input type="password" id="confirmPassword" class="border border-gray-400 p-2 w-full mb-4 fixed-width-input" />  
+            <span id="confirmPassword-asterisk" class="text-red-500" style="margin-right: 0.5rem;">*</span> <!-- 星号提示 -->
+            <span id="confirmPassword-error" class="text-red-500"></span> <!-- 密码不一致提示 -->
+        </div>  
+        <div class="flex justify-center">  
+            <button type="button" class="bg-green-600 text-white py-2 px-4 rounded" onclick="submitLogin()">登录</button>  
+            <button type="button" class="bg-gray-300 py-2 px-4 rounded ml-2" onclick="closeLoginModal()">取消</button>  
+        </div>  
+    </div>  
+     <div id="errorModal" class="hidden fixed inset-0 z-50 flex items-center justify-center" >  
+    <div class="bg-white p-6 rounded-lg cursor-move h-1/5 max-h-4xl" id="errorModalHeader"> <!-- 添加移动样式 -->  
+        <h2 class="text-lg font-semibold">错误信息</h2>  
+        <div id="errorMessage" class="mt-4 "></div> 
+        <button onclick="closeErrorModal()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">关闭</button>  
+    </div>  
+</div>  --%>
+
+</div>  
+<script type="text/javascript">  
+    function triggerFileInput(fileInputId) {
+        // 触发文件上传输入框的点击事件  
+        document.getElementById(fileInputId).click();
+    }
+
+    function updateFileName(fileInputId, displayId) {
+        var fileInput = document.getElementById(fileInputId);
+        var displayElement = document.getElementById(displayId);
+
+        if (fileInput.files.length > 0) {
+            // 获取选择的文件名称  
+            displayElement.textContent = fileInput.files[0].name;
+        } else {
+            displayElement.textContent = "未选择文件";
+        }
+    }
+    
+
+    //async function submitLogin() {
+    //    var username = document.getElementById('username').value;
+    //    var password = document.getElementById('password').value;
+    //    var confirmPassword = document.getElementById('confirmPassword').value;
+    //    var messageDiv = document.getElementById('message');
+    //    var errors = [];
+
+    //    messageDiv.textContent = '';
+
+
+    //    // 验证输入  
+    //    if (!username) {
+    //        errors.push("用户名不能为空。");
+    //        document.getElementById('username-asterisk').textContent = '*';
+    //    }
+    //    if (!password) {
+    //        errors.push("密码不能为空。");
+    //        document.getElementById('password-asterisk').textContent = '*';
+    //    }
+    //    if (password !== confirmPassword) {
+    //        errors.push("两次密码不一致。");
+    //        document.getElementById('confirmPassword-error').textContent = '两次密码不一致';
+    //    }
+
+    //    // 如果有错误，弹出错误信息的弹窗  
+    //    if (errors.length > 0) {
+    //        showErrorModal(errors.join(" "));
+    //        return;
+    //    }
+
+    //    try {
+    //        const response = await fetch("Login.aspx/CheckUserLogin", {
+    //            method: "POST",
+    //            headers: {
+    //                "Content-Type": "application/json; charset=utf-8"
+    //            },
+    //            body: JSON.stringify({ name: username, password: password })
+    //        });
+
+    //        const result = await response.json();
+
+    //        if (response.ok && result.d > 0) {
+    //            messageDiv.textContent = '登录成功！';
+    //            messageDiv.className = 'mb-4 text-green-500';
+    //            setTimeout(() => {
+    //                window.location.href = "Default.aspx";
+    //            }, 1000);
+    //        } else {
+    //            messageDiv.textContent = '用户名或密码错误！';
+    //            messageDiv.className = 'mb-4 text-red-500';
+    //        }
+    //    } catch (error) {
+    //        messageDiv.textContent = '登录请求失败，请稍后再试。';
+    //        messageDiv.className = 'mb-4 text-red-500';
+    //        console.error('Error during login:', error);
+    //    }
+    //}
+    //function showErrorModal(errorMessage) {
+    //    // 清空之前的消息  
+    //    let errorMessageElement = document.getElementById('errorMessage');
+    //    errorMessageElement.innerHTML = ''; // 使用innerHTML来清空并添加新内容  
+
+    //    // 将错误信息按行分割  
+    //    const errorLines = errorMessage.split('。'); // 假设错误信息是以句号（"。"）分隔的  
+
+    //    // 遍历错误行，为每行创建一个<p>元素并添加到容器中  
+    //    errorLines.forEach(line => {
+    //        if (line.trim() !== '') { // 忽略空行  
+    //            const p = document.createElement('p');
+    //            p.textContent = line.trim() + '。'; // 重新添加句号以符合原始格式  
+    //            errorMessageElement.appendChild(p);
+    //        }
+    //    });
+
+    //    // 显示模态框  
+    //    document.getElementById('errorModal').classList.remove('hidden');
+
+    //    // 添加拖动功能  
+    //    makeDraggable(document.getElementById('errorModalHeader'));
+    //}
+    
+
+
+    //function closeErrorModal(event) {
+    //    console.log('关闭错误弹窗');
+    //    event.stopPropagation(); // 阻止事件冒泡  
+    //    document.getElementById('errorModal').classList.add('hidden'); // 仅隐藏错误弹窗  
+    //    document.getElementById('username').focus(); // 可选：将焦点返回到用户名输入框  
+    //    // 确保登录弹窗保持可见，不在这里影响它  
+    //}  
+
+    //function openLoginModal() {
+    //    document.getElementById('loginModal').classList.remove('hidden');
+    //}
+
+    //function closeLoginModal() {
+    //    console.log('Closing login modal');
+    //    document.getElementById('loginModal').classList.add('hidden');
+    //    document.getElementById('message').textContent = '';
+    //}
+
+    let highlightTimeoutId = null;
+
+    document.querySelector('.search-icon').addEventListener('click', function (event) {
+        event.preventDefault(); // 防止表单提交等默认行为
+
+        // 清除之前的高亮定时器
+        if (highlightTimeoutId) {
+            clearTimeout(highlightTimeoutId);
+        }
+
+        const searchText = document.querySelector('.search-input').value.toLowerCase();
+        const tableRows = document.querySelectorAll('table tbody tr');
+
+        let foundRow = null;
+
+        for (let i = 0; i < tableRows.length; i++) {
+            const studentIdCell = tableRows[i].querySelector('td:nth-child(1)'); // 假设学生学号在第一列
+            const studentNameCell = tableRows[i].querySelector('td:nth-child(2)'); // 假设学生名字在第二列
+            if (studentIdCell && studentNameCell) {
+                const studentId = studentIdCell.textContent || studentIdCell.innerText;
+                const studentName = studentNameCell.textContent || studentNameCell.innerText;
+                if (studentId.toLowerCase().includes(searchText) || studentName.toLowerCase().includes(searchText)) {
+                    foundRow = tableRows[i];
+                    break; // 找到后停止搜索
+                }
+            }
+        }
+
+        if (foundRow) {
+            // 找到了匹配项，滚动到该行
+            foundRow.scrollIntoView({ behavior: 'smooth', block: 'center' }); // 确保行在视口中居中显示
+
+            // 高亮显示整行
+            foundRow.style.backgroundColor = 'yellow';
+
+            // 设置一个新的高亮定时器
+            highlightTimeoutId = setTimeout(() => {
+                console.log('Removing highlight after 30 seconds'); // 调试输出
+                foundRow.style.backgroundColor = ''; // 移除背景颜色，恢复默认样式
+            }, 2000); // 2秒后移除高亮
+        } else {
+            alert('未找到匹配的学生学号或姓名');
+        }
+    });
+    function viewSchoolInfo() {
+        var schoolName = document.getElementById('selectedSchoolName').innerText;
+        if (schoolName) {
+            // 使用 AJAX 调用服务器端方法
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "UpdateSchoolName.aspx/GetSchoolDetails", true);
+            xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.d) {
+                        displaySchoolDetails(response.d); // 显示学校详情
+                    } else {
+                        alert("无法找到学校信息");
+                    }
+                }
+            };
+            xhr.send(JSON.stringify({ schoolName: schoolName }));
+        } else {
+            alert("请先选择一所学校");
+        }
+    }
+
+    function displaySchoolDetails(details) {
+        // 创建模态框内容
+        var modalContent = '<div class="modal fade show" id="schoolDetailsModal" tabindex="-1" role="dialog" aria-labelledby="schoolDetailsModalLabel" style="display:block;">' +
+            '  <div class="modal-dialog" role="document">' +
+            '    <div class="modal-content">' +
+            '      <div class="modal-header">' +
+            '        <h5 class="modal-title" id="schoolDetailsModalLabel">学校信息</h5>' +
+            '        <button type="button" class="close" onclick="closeModal()">×</button>' +
+            '      </div>' +
+            '      <div class="modal-body">';
+        for (var key in details) {
+            if (details.hasOwnProperty(key)) {
+                modalContent += '<p><strong>' + key + ':</strong> ' + details[key] + '</p>';
+            }
+        }
+        modalContent += '      </div>' +
+            '      <div class="modal-footer">' +
+            '        <button type="button" class="btn btn-secondary" onclick="closeModal()">关闭</button>' +
+            '      </div>' +
+            '    </div>' +
+            '  </div>' +
+            '</div>';
+
+        // 将模态框添加到 body
+        document.body.innerHTML += modalContent;
+
+        // 显示模态框
+        var modal = document.getElementById('schoolDetailsModal');
+        modal.style.display = 'block';
+    }
+
+    // 关闭模态框的函数
+    function closeModal() {
+        var modal = document.getElementById('schoolDetailsModal');
+        if (modal) {
+            modal.style.display = 'none';
+            // 可以选择移除模态框，或者让它保留在页面上但不可见
+            // document.body.removeChild(modal);
+        }
+    }
+
+
+</script>  
+        <asp:ContentPlaceHolder id="ContentPlaceHolder1" runat="server">
+        </asp:ContentPlaceHolder>
+<div>
+ </div>           
+            </main>  
+        </form>  
+    </body>  
+    </html>  
+
